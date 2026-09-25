@@ -1,6 +1,6 @@
 ﻿## Interface: 30300
 ## Title: |cFF00FF00OPie_Sirus|r
-## Version: 1.37
+## Version: 1.38
 ## Author: foxlit, Poslevkusie, Accidev
 ## Notes: Group abilities into rings that appear when you hold down a binding.
 ## Notes-ruRU: Объединяет умения в кольца, которые появляются при нажатии назначенных клавиш.

@@ -135,8 +135,8 @@ function int.alwaysHasStickyFocus()
 end
 function int.adjustSpacing(d, force)
 	local fs, ct, _, screenHeight = d.editFS, d.cursorTex, GetPhysicalScreenSize()
-	local spacing, fsLineHeight, screenLocalHeight = d.spacingTarget, fs:GetLineHeight(),
-		fs:GetEffectiveScale() * screenHeight
+	local spacing, fsLineHeight, screenLocalHeight = d.spacingTarget,
+		fs.GetLineHeight and fs:GetLineHeight() or select(2, fs:GetFont()) or 12, fs:GetEffectiveScale() * screenHeight
 	if force or d.cachedLineHeight ~= fsLineHeight or d.cachedScreenHeight ~= screenLocalHeight then
 		local pixel, mceil = 768 / screenLocalHeight, math.ceil
 		local pixSpacedLineHeight = mceil((spacing + fsLineHeight) / pixel) * pixel
@@ -224,7 +224,9 @@ local function CreateTextArea(name, parent, outerTemplate, id)
 	input:SetMultiLine(true)
 	input:SetAutoFocus(false)
 	input:SetFontObject(GameFontHighlight)
-	input:SetHyperlinkPropagateToParent(true)
+	if input.SetHyperlinkPropagateToParent then
+		input:SetHyperlinkPropagateToParent(true)
+	end
 	input:SetTextInsets(1, 1, 1, 1)
 	input:SetHitRectInsets(-1, -1, -1, 0)
 	input:SetScript("OnCursorChanged", int.OnCursorChanged)
