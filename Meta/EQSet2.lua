@@ -3,6 +3,7 @@ local _, T = ...
 local EV, XU, AB = T.Evie, T.exUI, T.ActionBook:compatible(2, 45)
 assert(EV and XU and AB and 1, "Incompatible library bundle")
 local L, ABL = T.L, AB.L
+local strcmputf8i, C_EquipmentSet = T.compat.strcmputf8i, T.compat.C_EquipmentSet
 
 do -- action handler
 	local actions = {}

@@ -5,6 +5,7 @@ AB, KR = AB and AB:compatible(2, 14), AB and AB:compatible("Kindred", 1, 34)
 assert(ORI and EV and L and PC and XU and config and AB and KR, "Incompatible library bundle")
 local GameTooltip = T.NotGameTooltip or GameTooltip
 local TS, GFX = T.TenSettings, ([[Interface\AddOns\%s\gfx\]]):format(ADDON)
+local C_QuestLog = T.compat.C_QuestLog
 
 local exclude = PC:RegisterPVar("AutoQuestExclude", {})
 local IsQuestItem

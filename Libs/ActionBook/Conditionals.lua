@@ -9,6 +9,7 @@ local KR = T.ActionBook:compatible("Kindred", 1, 33)
 local RW = T.ActionBook:compatible("Rewire", 1, 40)
 assert(EV and WR and AB and KR and RW and 1, "Incompatible library bundle")
 local playerClassLocal, playerClass = UnitClass("player")
+local strcmputf8i = T.compat.strcmputf8i
 
 local stringArgCache = {}
 do

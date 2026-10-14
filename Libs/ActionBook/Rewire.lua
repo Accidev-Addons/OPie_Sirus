@@ -5,6 +5,7 @@ end
 local RW, EV, WR, AB, KR = {}, T.Evie, T.Ware, T.ActionBook:compatible(2, 36), T.ActionBook:compatible("Kindred", 1, 29)
 assert(EV and WR and AB and KR and 1, "Incompatible library bundle")
 local PYROLYSIS = {}
+local AreDangerousScriptsAllowed, strcmputf8i = T.compat.AreDangerousScriptsAllowed, T.compat.strcmputf8i
 
 local function assert(condition, err, ...)
 	return condition or error(tostring(err):format(...), 3)((0)[0])

@@ -1,5 +1,6 @@
 local MAJ, REV, _, T = 3, 64, ...
 local EV, ORI, PC = T.Evie, OPie.UI, T.OPieCore
+local UnitFullName = T.compat.UnitFullName
 local AB, RW, IM = T.ActionBook:compatible(2, 37), T.ActionBook:compatible("Rewire", 1, 10),
 	T.ActionBook:compatible("Imp", 1, 0)
 assert(ORI and AB and RW and IM and EV and PC and 1, "Missing required libraries")

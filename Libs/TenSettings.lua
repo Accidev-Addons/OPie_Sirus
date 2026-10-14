@@ -2,6 +2,7 @@
 local EV, XU, noop = T.Evie, T.exUI, function()
 end
 local GFX = ([[Interface\AddOns\%s\gfx\]]):format((...))
+local REVERT = T.compat.REVERT
 T.TenSettings = M
 
 local SKIN = {

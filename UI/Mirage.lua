@@ -380,7 +380,7 @@ local function CreateIndicator(name, parent, size, nested, gx)
 	w:SetAllPoints()
 	w:SetFrameLevel(ef:GetFrameLevel() + 5)
 	d.cd, d.cdControl = CreateCooldown(ef, size, w, gx)
-	w = d.cd:CreateFontString(nil, "OVERLAY", "GameFontNormalLargeOutline")
+	w = d.cd:CreateFontString(nil, "OVERLAY", "OPieFontNormalLargeOutline")
 	w:SetPoint("CENTER")
 	w, d.cdText = ef:CreateTexture(nil, "ARTWORK", nil, 3), w
 	w:SetAllPoints()

@@ -1,5 +1,6 @@
 local AB, _, T = OPie.ActionBook:compatible(2, 14), ...
 local ORI, EV, L = OPie.UI, T.Evie, T.L
+local C_Minimap = T.compat.C_Minimap
 assert(AB and ORI and EV and L and 1, 'Incompatible library bundle')
 
 local function generateColor(c, n)

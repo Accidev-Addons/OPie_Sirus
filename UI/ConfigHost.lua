@@ -1,6 +1,7 @@
 local ADDON, T = ...
 local config, L, TS, XU, PC, GameTooltip = {}, T.L, T.TenSettings, T.exUI, T.OPieCore, T.NotGameTooltip or GameTooltip
 T.config = config
+local IsMetaKeyDown = T.compat.IsMetaKeyDown
 
 do -- /opie
 	local slashExtensions = {}

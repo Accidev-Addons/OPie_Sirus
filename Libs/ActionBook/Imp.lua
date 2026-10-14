@@ -7,6 +7,8 @@ local _GG = _G
 local EV, AB, RW = T.Evie, T.ActionBook:compatible(2, 34), T.ActionBook:compatible("Rewire", 1, 27)
 assert(EV and AB and RW and 1, "Incompatible library bundle")
 local IM, L, XU = {}, T.ActionBook.L, T.exUI
+local CA = T.compat
+local C_MountJournal, GetSpellBookItemName, GetSpellBookItemInfo, IsMetaKeyDown = CA.C_MountJournal, CA.GetSpellBookItemName, CA.GetSpellBookItemInfo, CA.IsMetaKeyDown
 
 local function assert(condition, text, level, ...)
 	return condition or error(tostring(text):format(...), 1 + (level or 1))((0)[0])

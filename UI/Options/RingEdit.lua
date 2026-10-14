@@ -3,6 +3,7 @@ local PC, RK, ORI, L, config = T.OPieCore, T.RingKeeper, OPie.UI, T.L, T.config
 local GFX = ([[Interface\AddOns\%s\gfx\]]):format((...))
 local AB, EV, TS, XU = T.ActionBook:compatible(2, 23), T.Evie, T.TenSettings, T.exUI
 local GameTooltip = T.NotGameTooltip or GameTooltip
+local UnitFullName = T.compat.UnitFullName
 assert(PC and RK and ORI and AB and EV and TS and XU and L and 1, 'Incompatible library bundle')
 local pickerPrefs, rankFilter = PC:RegisterPVar("PickerPrefs", {}), T.SpellRankFilter or {
 	maxOnly = true

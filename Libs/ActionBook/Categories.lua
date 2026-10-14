@@ -9,6 +9,9 @@ local IM = T.ActionBook:compatible("Imp", 1, 8)
 local EV = T.Evie
 assert(AB and RW and IM and EV and 1, "Incompatible library bundle")
 local L = T.ActionBook.L
+local CA = T.compat
+local strcmputf8i, GetSpellBookItemName, GetSpellBookItemInfo = CA.strcmputf8i, CA.GetSpellBookItemName, CA.GetSpellBookItemInfo
+local C_EquipmentSet = CA.C_EquipmentSet
 local mark = {}
 local spellRankFilter = {
 	maxOnly = true
@@ -475,34 +478,16 @@ if WORLD_RAID_MARKER_ORDER then
 	end)
 end
 AB:AugmentCategory(L "Toys", function(_, add)
-	if not ToyBox or not ToyBox.PagingFrame then
+	if not (C_ToyBox and C_ToyBox.GetNumFilteredToys and C_ToyBox.GetToyFromIndex) then
 		return
 	end
 	wipe(mark)
-	local maxPages = ToyBox.PagingFrame:GetMaxPages()
-	local origPage = ToyBox.PagingFrame:GetCurrentPage()
-	local wasShown = ToyBox:IsShown()
-	if not wasShown then
-		ToyBox:Show()
-	end
-	for page = 1, maxPages do
-		if page ~= origPage then
-			ToyBox.PagingFrame:SetCurrentPage(page)
+	for i = 1, C_ToyBox.GetNumFilteredToys() do
+		local itemID, spellID = C_ToyBox.GetToyFromIndex(i)
+		if spellID and spellID > 0 and not mark[spellID] and PlayerHasToy(itemID) then
+			mark[spellID] = 1
+			add("spell", spellID)
 		end
-		for b = 1, 18 do
-			local btn = _G["ToyBoxIconsFrameSpellButton" .. b]
-			if btn and btn.spellID and btn.spellID > 0 and not mark[btn.spellID] and btn.itemID and
-				PlayerHasToy(btn.itemID) then
-				mark[btn.spellID] = 1
-				add("spell", btn.spellID)
-			end
-		end
-	end
-	if maxPages > 1 and origPage ~= maxPages then
-		ToyBox.PagingFrame:SetCurrentPage(origPage)
-	end
-	if not wasShown then
-		ToyBox:Hide()
 	end
 	wipe(mark)
 end)

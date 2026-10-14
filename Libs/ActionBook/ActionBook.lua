@@ -4,6 +4,7 @@ if T.SkipLocalActionBook or T.ActionBook then
 end
 local EV, WR = T.Evie, T.Ware
 assert(EV and WR and 1, 'Incompatible library bundle')
+local C_Widget = T.compat.C_Widget
 
 local apiV, AB, ext, RWsec = {}, {}, {
 	Kindred = T.Kindred

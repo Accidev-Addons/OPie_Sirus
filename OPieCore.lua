@@ -1413,7 +1413,7 @@ local function cmpRingK(a, b)
 end
 local getProfileIdentComparator
 do
-	local pt
+	local pt, strcmputf8i = nil, T.compat.strcmputf8i
 	local function cmpProfileIdent(a, b)
 		local ac, bc = pt[a] or 0, pt[b] or 0
 		if ac ~= bc then

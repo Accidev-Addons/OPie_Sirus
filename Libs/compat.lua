@@ -1,15 +1,18 @@
 local _, T = ...
+local CA = {}
+T.compat = CA
 
--- frame metatable — only SetAttributeNoHandler; other retail methods intentionally omitted
--- (Lua closures in frame metatable are tainted, propagating via NamePlate secure thread)
-do
-	local f = CreateFrame("Frame")
-	local mt = getmetatable(f)
-	local idx = mt and type(mt.__index) == "table" and mt.__index
-	if idx and not idx.SetAttributeNoHandler then
-		idx.SetAttributeNoHandler = idx.SetAttribute
+local function shim(ns, fill)
+	local native = _G[ns]
+	local t = setmetatable({}, {
+		__index = native
+	})
+	for k, v in pairs(fill) do
+		if not (native and native[k]) then
+			t[k] = v
+		end
 	end
-	f = nil
+	CA[ns] = t
 end
 
 -- C_Timer.After: Sirus calls it as colon method; Evie captures the reference before this file loads.
@@ -53,109 +56,81 @@ do
 	end
 end
 
-if not C_Widget then
-	C_Widget = {}
-end
-if not C_Widget.IsFrameWidget then
-	C_Widget.IsFrameWidget = function(v)
+shim("C_Widget", {
+	IsFrameWidget = function(v)
 		return type(v) == "table" and type(v[0]) == "userdata"
 	end
+})
+
+CA.AreDangerousScriptsAllowed = AreDangerousScriptsAllowed or function()
+	return true
 end
 
-if not AreDangerousScriptsAllowed then
-	AreDangerousScriptsAllowed = function()
-		return true
+shim("C_QuestLog", {
+	IsQuestFlaggedCompleted = IsQuestFlaggedCompleted or function(qid)
+		qid = tonumber(qid)
+		return qid ~= nil and IsQuestCompleted(qid) or false
 	end
-end
+})
 
-if not C_QuestLog then
-	C_QuestLog = {
-		IsQuestFlaggedCompleted = IsQuestFlaggedCompleted or function(qid)
-			qid = tonumber(qid)
-			return qid ~= nil and IsQuestCompleted(qid) or false
-		end
-	}
-end
-
-if not C_PetJournal then
-	C_PetJournal = {}
-end
-if not C_PetJournal.IsCurrentlySummoned then
-	C_PetJournal.IsCurrentlySummoned = C_PetJournal.GetSummonedPetID and function(guid)
+shim("C_PetJournal", {
+	IsCurrentlySummoned = C_PetJournal and C_PetJournal.GetSummonedPetID and function(guid)
 		return guid ~= nil and C_PetJournal.GetSummonedPetID() == guid
 	end or function()
 		return false
-	end
-end
-if not C_PetJournal.DismissSummonedPet then
-	C_PetJournal.DismissSummonedPet = DismissCompanion and function()
+	end,
+	DismissSummonedPet = DismissCompanion and function()
 		DismissCompanion("CRITTER")
 	end or function()
-	end
-end
-if not C_PetJournal.SummonPetByGUID then
-	C_PetJournal.SummonPetByGUID = C_PetJournal.SummonPetByPetID or function()
-	end
-end
-if not C_PetJournal.GetPetCooldownByGUID then
-	C_PetJournal.GetPetCooldownByGUID = function()
+	end,
+	SummonPetByGUID = C_PetJournal and C_PetJournal.SummonPetByPetID or function()
+	end,
+	GetPetCooldownByGUID = function()
 		return 0, 0, 1
 	end
-end
+})
 
-if not C_ToyBox then
-	C_ToyBox = {}
-end
-if not C_ToyBox.IsToyUsable then
-	C_ToyBox.IsToyUsable = function()
+shim("C_ToyBox", {
+	IsToyUsable = function()
 		return true
 	end
-end
+})
 
-if not C_MountJournal then
-	C_MountJournal = {}
-end
-if not C_MountJournal.GetMountIDs then
-	C_MountJournal.GetMountIDs = function()
+shim("C_MountJournal", {
+	GetMountIDs = function()
 		return {}
-	end
-end
-if not C_MountJournal.GetMountInfoExtraByID then
-	C_MountJournal.GetMountInfoExtraByID = function()
+	end,
+	GetMountInfoExtraByID = function()
 		return nil
 	end
-end
+})
 -- force nil so mount spells route through the spell handler (GetSpellInfo/GetSpellTexture) instead
 
-if not FindSpellBookSlotBySpellID then
-	FindSpellBookSlotBySpellID = function(spellID)
-		if type(spellID) ~= "number" or spellID == 0 then
-			return nil
-		end
-		for tab = 1, GetNumSpellTabs() do
-			local _, _, offset, count = GetSpellTabInfo(tab)
-			for i = offset + 1, offset + count do
-				local link = GetSpellLink(i, "spell")
-				local sid = link and tonumber(link:match("|Hspell:(%d+)"))
-				if sid == spellID then
-					return i
-				end
+CA.FindSpellBookSlotBySpellID = FindSpellBookSlotBySpellID or function(spellID)
+	if type(spellID) ~= "number" or spellID == 0 then
+		return nil
+	end
+	for tab = 1, GetNumSpellTabs() do
+		local _, _, offset, count = GetSpellTabInfo(tab)
+		for i = offset + 1, offset + count do
+			local link = GetSpellLink(i, "spell")
+			local sid = link and tonumber(link:match("|Hspell:(%d+)"))
+			if sid == spellID then
+				return i
 			end
 		end
 	end
 end
 
-if not DoesSpellExist then
-	DoesSpellExist = function(name)
-		return not not (GetSpellInfo(name))
-	end
+CA.DoesSpellExist = DoesSpellExist or function(name)
+	return not not (GetSpellInfo(name))
 end
 
-if not C_EquipmentSet then
+do
 	local function iterSets()
 		return GetNumEquipmentSets and GetNumEquipmentSets() or 0
 	end
-	C_EquipmentSet = {
+	CA.C_EquipmentSet = C_EquipmentSet or {
 		GetEquipmentSetIDs = function()
 			local ids = {}
 			for i = 1, iterSets() do
@@ -198,97 +173,69 @@ if not C_EquipmentSet then
 	}
 end
 
-if not C_Minimap then
-	C_Minimap = {
-		GetNumTrackingTypes = GetNumTrackingTypes,
-		GetTrackingInfo = function(id)
-			local name, tex, active = GetTrackingInfo(id)
-			if not name then
-				return nil
-			end
-			return {
-				name = name,
-				texture = tex,
-				active = active
-			}
-		end,
-		SetTracking = function(id, enable)
-			if SetTracking then
-				SetTracking(enable and id or nil)
-			end
-		end
-	}
-end
-
-if not C_KeyBindings then
-	C_KeyBindings = {
-		GetBindingByKey = GetBindingByKey or function()
+CA.C_Minimap = C_Minimap or {
+	GetNumTrackingTypes = GetNumTrackingTypes,
+	GetTrackingInfo = function(id)
+		local name, tex, active = GetTrackingInfo(id)
+		if not name then
 			return nil
 		end
-	}
-end
-
-if not IsMetaKeyDown then
-	IsMetaKeyDown = function()
-		return false
-	end
-end
-
-
-if RAID_CLASS_COLORS then
-	for _, c in pairs(RAID_CLASS_COLORS) do
-		if not c.colorStr and c.r then
-			c.colorStr = string.format("ff%02x%02x%02x", math.floor(c.r * 255 + 0.5), math.floor(c.g * 255 + 0.5),
-				math.floor(c.b * 255 + 0.5))
+		return {
+			name = name,
+			texture = tex,
+			active = active
+		}
+	end,
+	SetTracking = function(id, enable)
+		if SetTracking then
+			SetTracking(enable and id or nil)
 		end
 	end
-end
+}
 
-if not UnitFullName then
-	UnitFullName = function(unit)
-		local name = UnitName(unit)
-		local realm = GetRealmName and GetRealmName() or ""
-		return name, realm or ""
+CA.C_KeyBindings = C_KeyBindings or {
+	GetBindingByKey = GetBindingByKey or function()
+		return nil
 	end
+}
+
+CA.IsMetaKeyDown = IsMetaKeyDown or function()
+	return false
 end
 
-if not strcmputf8i then
-	strcmputf8i = function(a, b)
-		local la, lb = (a or ""):lower(), (b or ""):lower()
-		if la < lb then
-			return -1
-		elseif la > lb then
-			return 1
-		else
-			return 0
-		end
+CA.UnitFullName = UnitFullName or function(unit)
+	local name = UnitName(unit)
+	local realm = GetRealmName and GetRealmName() or ""
+	return name, realm or ""
+end
+
+CA.strcmputf8i = strcmputf8i or function(a, b)
+	local la, lb = (a or ""):lower(), (b or ""):lower()
+	if la < lb then
+		return -1
+	elseif la > lb then
+		return 1
+	else
+		return 0
 	end
 end
 
 do
-	if not GameFontNormalLargeOutline then
-		local f = CreateFont("GameFontNormalLargeOutline")
-		local base = GameFontNormalLarge or GameFontNormal
-		if base then
-			local face, size = base:GetFont()
-			f:SetFont(face, size or 12, "OUTLINE")
-		end
+	local f = CreateFont("OPieFontNormalLargeOutline")
+	local base = GameFontNormalLarge or GameFontNormal
+	if base then
+		local face, size = base:GetFont()
+		f:SetFont(face, size or 12, "OUTLINE")
 	end
 end
 
-if not GetSpellBookItemName then
-	GetSpellBookItemName = GetSpellName
-end
-if not GetSpellBookItemInfo then
-	GetSpellBookItemInfo = function(index, bookType)
-		local link = GetSpellLink(index, bookType)
-		local id = link and tonumber(link:match("|Hspell:(%d+)"))
-		if id then
-			return "SPELL", id
-		end
+CA.GetSpellBookItemName = GetSpellBookItemName or GetSpellName
+CA.GetSpellBookItemInfo = GetSpellBookItemInfo or function(index, bookType)
+	local link = GetSpellLink(index, bookType)
+	local id = link and tonumber(link:match("|Hspell:(%d+)"))
+	if id then
+		return "SPELL", id
 	end
 end
 
-if not REVERT then
-	REVERT = "Revert"
-end
+CA.REVERT = REVERT or "Revert"

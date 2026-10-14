@@ -4,6 +4,7 @@ local GetPhysicalScreenSize = GetPhysicalScreenSize or function()
 	return tonumber(w) or 1024, tonumber(h) or 768
 end
 local PC, EV, XU, GameTooltip, L = T.OPieCore, T.Evie, T.exUI, T.NotGameTooltip or GameTooltip, T.L
+local IsMetaKeyDown, C_KeyBindings = T.compat.IsMetaKeyDown, T.compat.C_KeyBindings
 local api, iapi, configCache, vis = {}, {}, {}, {}
 local max, min, abs, floor, sin, cos = math.max, math.min, math.abs, math.floor, sin, cos
 local MIN_ANIMATION_FPS, LOCKED_FRAMERATE = 20, 60

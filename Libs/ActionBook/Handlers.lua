@@ -10,6 +10,9 @@ local KR = T.ActionBook:compatible("Kindred", 1, 14)
 local IM = T.ActionBook:compatible("Imp", 1, 0)
 assert(EV and AB and RW and KR and IM and 1, "Incompatible library bundle")
 local L = T.ActionBook.L
+local CA = T.compat
+local GetSpellBookItemInfo, FindSpellBookSlotBySpellID, DoesSpellExist = CA.GetSpellBookItemInfo, CA.FindSpellBookSlotBySpellID, CA.DoesSpellExist
+local C_PetJournal, C_EquipmentSet, C_ToyBox = CA.C_PetJournal, CA.C_EquipmentSet, CA.C_ToyBox
 local spellFeedback, itemHint, toyHint
 local GetSpellSubtext = GetSpellSubtext or function(id)
 	return select(2, GetSpellInfo(id))
@@ -256,8 +259,8 @@ securecall(function() -- spell: spell ID + mount spell ID
 				-- CastSpellByName находит не тот спелл на Sirus; нужен CastSpell(slot,"spell").
 				local sbslot = FindSpellBookSlotBySpellID(id)
 				if sbslot then
-					local mac = "/run local s=FindSpellBookSlotBySpellID(" .. id ..
-									");if s then CastSpell(s,'spell') end"
+					local mac = "/run for t=1,GetNumSpellTabs() do local _,_,o,n=GetSpellTabInfo(t) for i=o+1,o+n do if tonumber((GetSpellLink(i,'spell') or ''):match('spell:(%d+)'))==" ..
+									id .. " then return CastSpell(i,'spell') end end end"
 					if not actionMap[n0] then
 						actionMap[n0] = AB:CreateActionSlot(spellHint, id, "attribute", "type", "macro", "macrotext",
 							mac)

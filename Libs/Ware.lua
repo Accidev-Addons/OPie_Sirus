@@ -96,7 +96,7 @@ do
 		SecureHandlerWrapScript(delegate, "OnAttributeChanged", owner, OAC_SNIPPET)
 		rtHandle[env], handleRT[h] = h, env
 		if not SetAttribute then
-			SetAttribute, SetAttributeNoHandler = delegate.SetAttribute, delegate.SetAttributeNoHandler
+			SetAttribute, SetAttributeNoHandler = delegate.SetAttribute, delegate.SetAttributeNoHandler or delegate.SetAttribute
 		end
 		hi[1], hi[2] = delegate, env.__WARE
 		setmetatable(hi, nil)

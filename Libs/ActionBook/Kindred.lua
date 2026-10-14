@@ -43,7 +43,7 @@ do
 		if frame then
 			return self:SetFrameRef(ref, frame)
 		else
-			return self:SetAttributeNoHandler("_frameref-" .. ref, nil)
+			return (self.SetAttributeNoHandler or self.SetAttribute)(self, "_frameref-" .. ref, nil)
 		end
 	end
 end
