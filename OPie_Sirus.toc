@@ -1,14 +1,12 @@
 ﻿## Interface: 30300
 ## Title: |cFF00FF00OPie_Sirus|r
-## Version: 1.40
+## Version: 1.41
 ## Author: foxlit, Poslevkusie, Accidev
 ## Notes: Group abilities into rings that appear when you hold down a binding.
 ## Notes-ruRU: Объединяет умения в кольца, которые появляются при нажатии назначенных клавиш.
 ## SavedVariables: OPie_SavedData
 ## SavedVariablesPerCharacter: OPie_SavedDataPC
 
-## X-Sirus-Update: https://github.com/accidev/OPie_Sirus/tree/main
-## X-Sirus-Category: 17
 
 Meta\PackTag-6.lua
 Libs\Evie.lua

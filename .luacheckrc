@@ -55,6 +55,7 @@ read_globals = {
 	"CUSTOM_CLASS_COLORS",
 	"C_BattlePass",
 	"C_EventUtils",
+	"C_GlobalStorage",
 	"C_Hardcore",
 	"C_Item",
 	"C_SpellBook",

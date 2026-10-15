@@ -2184,8 +2184,8 @@ local specCount, specName
 do
 	local GetGroupNote = C_Talent and C_Talent.GetTalentGroupNote
 	function specCount()
-		local n = C_Talent and C_Talent.GetNumTalentGroups and C_Talent.GetNumTalentGroups() or GetNumTalentGroups and
-					  GetNumTalentGroups() or 1
+		local n = T.compat.IsSpecInfoReady() and (C_Talent and C_Talent.GetNumTalentGroups and C_Talent.GetNumTalentGroups() or
+					  GetNumTalentGroups and GetNumTalentGroups()) or 1
 		return n and n > 0 and n or 1
 	end
 	function specName(i)

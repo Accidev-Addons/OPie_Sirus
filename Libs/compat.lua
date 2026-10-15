@@ -239,3 +239,7 @@ CA.GetSpellBookItemInfo = GetSpellBookItemInfo or function(index, bookType)
 end
 
 CA.REVERT = REVERT or "Revert"
+
+CA.IsSpecInfoReady = function()
+	return not (C_GlobalStorage and C_GlobalStorage.GetVar) or C_GlobalStorage.GetVar("ASMSG_SPEC_INFO") ~= nil
+end
