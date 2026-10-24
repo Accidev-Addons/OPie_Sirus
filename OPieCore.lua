@@ -93,7 +93,8 @@ local function copy(t, copies, into)
 	return into
 end
 local function getSpecCharIdent(specIdx)
-	local tg = specIdx or GetActiveTalentGroup() or 1
+	local tg = specIdx or C_Talent and C_Talent.GetActiveTalentGroup and T.compat.IsSpecInfoReady() and
+				   C_Talent.GetActiveTalentGroup() or 1
 	return (tg == 1 and "%s" or "%s-%d"):format(charId, tg)
 end
 local function getNumSpecs()
@@ -1392,12 +1393,17 @@ function EV:PLAYER_LOGOUT()
 	OPie_SavedDataPC = next(pc) ~= nil and pc or nil
 	pc._GameVersion, pc._StoreVersion = configRoot._GameVersion, configRoot._StoreVersion
 end
-function EV.ACTIVE_TALENT_GROUP_CHANGED()
+local function syncSpecProfile()
+	if OR_LoadedState ~= 4 then
+		return
+	end
 	local newProfile = getProfileForSpec()
 	if newProfile ~= activeProfile then
 		OR_SwitchProfile(newProfile)
 	end
 end
+EV.ACTIVE_TALENT_GROUP_CHANGED = syncSpecProfile
+EV.PLAYER_TALENT_UPDATE_EX = syncSpecProfile
 function EV.UPDATE_BINDINGS()
 	sfBindsAll = true
 	OR_PerfomDelayedSync()
