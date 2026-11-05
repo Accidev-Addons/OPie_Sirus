@@ -185,36 +185,42 @@ local function emplaceReference(h)
 	end
 	return pwan and delegate
 end
+local keepWAN
+do
+	local liveWAN, wanHandle, pending = {}, setmetatable({}, {__mode = "v"}), 0
+	local function sweep()
+		if InCombatLockdown() then
+			return
+		end
+		for wan, delegate in pairs(liveWAN) do
+			if wanHandle[wan] == nil then
+				liveWAN[wan] = nil
+				SetAttribute(delegate, "clr", wan)
+				SetAttributeNoHandler(delegate, wan, nil)
+			end
+		end
+		pending = 0
+	end
+	local f = CreateFrame("Frame")
+	f:RegisterEvent("PLAYER_REGEN_ENABLED")
+	f:Hide()
+	f:SetScript("OnEvent", sweep)
+	function keepWAN(h, wan, delegate)
+		liveWAN[wan], wanHandle[wan], pending = delegate, h, pending + 1
+		if pending >= 64 then
+			sweep()
+		end
+	end
+end
 local function allocWAN(h)
 	local delegate, wan = emplaceReference(h), nil
 	if delegate then
 		wan = handleInfo[h][2]._nextWAN
 		SetAttribute(delegate, wan, nil)
 		handleWAN[h], refHandle[h], refKey[h] = wan, nil, nil
+		keepWAN(h, wan, delegate)
 	end
 	return wan
-end
-local IS_LIVE, freeWAN = 1
-do
-	local q, f = {}, CreateFrame("Frame")
-	f:RegisterEvent("PLAYER_REGEN_ENABLED")
-	f:RegisterEvent("PLAYER_LOGOUT")
-	f:Hide()
-	f:SetScript("OnEvent", function(_, event)
-		IS_LIVE = event ~= "PLAYER_LOGOUT" and IS_LIVE
-		for i = InCombatLockdown() and 0 or IS_LIVE and #q or 0, 2, -2 do
-			freeWAN(q[i - 1], q[i])
-			q[i - 1], q[i] = nil, nil
-		end
-	end)
-	function freeWAN(delegate, wan, enq)
-		if enq then
-			q[#q + 1], q[#q + 2] = delegate, wan
-		else
-			SetAttribute(delegate, "clr", wan)
-			SetAttributeNoHandler(delegate, wan, nil)
-		end
-	end
 end
 local function hwipe(h)
 	local wan = handleWAN[h] or allocWAN(h) or error("lost handle", 3)((0)[0])
@@ -243,6 +249,7 @@ local function newtable(h, k, ...)
 		SetAttribute(delegate, tWAN, "nat")
 		t = hi[3].__WARE[tWAN]
 		handleWAN[t] = tWAN
+		keepWAN(t, tWAN, delegate)
 	else
 		h[k] = newtable
 		t = h[k]
@@ -329,12 +336,6 @@ function hmeta:__newindex(k, v)
 end
 function hmeta:__len()
 	return #(handleRT[self] or emptyTable)
-end
-function hmeta:__gc()
-	local wan = IS_LIVE and handleWAN[self]
-	if wan and wan ~= "r0" then
-		freeWAN(handleInfo[self][1], wan, InCombatLockdown())
-	end
 end
 
 Ware.newtable = newtable
